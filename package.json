@@ -8,15 +8,34 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "dotenv": "^10.0.0",
     "next": "12.0.2",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
   "devDependencies": {
-    "@types/node": "16.11.6",
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-etherscan": "^2.1.7",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@typechain/ethers-v5": "^8.0.1",
+    "@typechain/hardhat": "^3.0.0",
+    "@types/chai": "^4.2.22",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.11.6",
     "@types/react": "17.0.34",
+    "chai": "^4.3.4",
     "eslint": "7",
     "eslint-config-next": "12.0.2",
+    "ethers": "^5.5.1",
+    "hardhat": "^2.6.7",
+    "hardhat-gas-reporter": "^1.0.4",
+    "solidity-coverage": "^0.7.17",
+    "ts-node": "^10.4.0",
+    "typechain": "^6.0.2",
     "typescript": "4.4.4"
+  },
+  "peerDependencies": {
+    "ethers": "^5.0.0",
+    "hardhat": "^2.0.0"
   }
 }
