@@ -45,3 +45,7 @@ typechain
 #Hardhat files
 cache
 artifacts
+
+#zokrates files
+contracts/circuits/*.key
+contracts/circuits/witness
