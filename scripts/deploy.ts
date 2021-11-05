@@ -16,11 +16,11 @@ async function main() {
   await run("compile");
 
   // We get the contract to deploy
-  const VerifierContract = await ethers.getContractFactory("Verifier");
+  const VerifierContract = await ethers.getContractFactory("VoteEvenOrOdd");
 
   const verifier = await VerifierContract.deploy();
 
-  console.log("Verivier deployed to:", verifier.address);
+  console.log("VoteEvenOrOdd deployed to:", verifier.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
