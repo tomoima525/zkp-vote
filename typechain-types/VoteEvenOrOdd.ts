@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
+  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -23,9 +24,11 @@ import type {
   OnEvent,
 } from "./common";
 
-export interface VerifierInterface extends ethers.utils.Interface {
+export interface VoteEvenOrOddInterface extends ethers.utils.Interface {
   functions: {
     "verifyTx(uint256[2],uint256[2][2],uint256[2],uint256[1])": FunctionFragment;
+    "vote(uint256[2],uint256[2][2],uint256[2],uint256[1])": FunctionFragment;
+    "votes(uint8)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -37,18 +40,30 @@ export interface VerifierInterface extends ethers.utils.Interface {
       [BigNumberish]
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "vote",
+    values: [
+      [BigNumberish, BigNumberish],
+      [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      [BigNumberish, BigNumberish],
+      [BigNumberish]
+    ]
+  ): string;
+  encodeFunctionData(functionFragment: "votes", values: [BigNumberish]): string;
 
   decodeFunctionResult(functionFragment: "verifyTx", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "vote", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "votes", data: BytesLike): Result;
 
   events: {};
 }
 
-export interface Verifier extends BaseContract {
+export interface VoteEvenOrOdd extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: VerifierInterface;
+  interface: VoteEvenOrOddInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -77,6 +92,16 @@ export interface Verifier extends BaseContract {
       input: [BigNumberish],
       overrides?: CallOverrides
     ): Promise<[boolean] & { r: boolean }>;
+
+    vote(
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
+      input: [BigNumberish],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    votes(arg0: BigNumberish, overrides?: CallOverrides): Promise<[number]>;
   };
 
   verifyTx(
@@ -87,6 +112,16 @@ export interface Verifier extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  vote(
+    a: [BigNumberish, BigNumberish],
+    b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+    c: [BigNumberish, BigNumberish],
+    input: [BigNumberish],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  votes(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
+
   callStatic: {
     verifyTx(
       a: [BigNumberish, BigNumberish],
@@ -95,6 +130,16 @@ export interface Verifier extends BaseContract {
       input: [BigNumberish],
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    vote(
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
+      input: [BigNumberish],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    votes(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
   };
 
   filters: {};
@@ -107,6 +152,16 @@ export interface Verifier extends BaseContract {
       input: [BigNumberish],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    vote(
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
+      input: [BigNumberish],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    votes(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -115,6 +170,19 @@ export interface Verifier extends BaseContract {
       b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
       c: [BigNumberish, BigNumberish],
       input: [BigNumberish],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    vote(
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
+      input: [BigNumberish],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    votes(
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

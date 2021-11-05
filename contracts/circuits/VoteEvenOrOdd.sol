@@ -5,6 +5,7 @@
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 pragma solidity ^0.8.0;
+import "hardhat/console.sol";
 
 library Pairing {
     struct G1Point {
@@ -194,7 +195,7 @@ library Pairing {
     }
 }
 
-contract Verifier {
+contract VoteEvenOrOdd {
     using Pairing for *;
     struct VerifyingKey {
         Pairing.G1Point alpha;
@@ -209,84 +210,87 @@ contract Verifier {
         Pairing.G1Point c;
     }
 
+    // votes for even or odd
+    mapping(uint8 => uint16) public votes;
+
     function verifyingKey() internal pure returns (VerifyingKey memory vk) {
         vk.alpha = Pairing.G1Point(
             uint256(
-                0x238b10d6cb2535511fd6732677fa61201866d054816cae0ba54f98481d162304
+                0x12b28d165175445af65f92c38fd328cf48d35c281619a4b83cb0ff671ec77d7d
             ),
             uint256(
-                0x2f2e3f918e41bee776a57da8eb0efefcaad02c4fd635a30416e1021894c6e9ff
+                0x143d098e0f7ff447f0507be6005f6355df844f19b76b4093cc24a708fffeaae7
             )
         );
         vk.beta = Pairing.G2Point(
             [
                 uint256(
-                    0x2daab5a806b510358cbef0418c777b0f39c9aa6ec35e15b1f5d16cb1593b204d
+                    0x1ec22bd6288b7a9197eceefa17707f6610fffe7a0ad31e1811fc440afc4e1311
                 ),
                 uint256(
-                    0x17b6638acd1776f3f773dd5c065ee6e0acbd3b24907cd8fd8463a70bf7e6396e
+                    0x199470d2975f2679c74e6848c9eb4e3a1d9586ba2b775f354ff1c18a529c4bc0
                 )
             ],
             [
                 uint256(
-                    0x25543e6e364ddcee6b5f92b8366c41dde9862d7ab67e387b044886e021c38e16
+                    0x2d212c6042313b34e9c54dae2d2d1972d254dc3702046fcaf487fa778c23d74c
                 ),
                 uint256(
-                    0x254723257846b27b8b51764207896b4d4ee6781d1bbfe2567b87f8fbabcabc82
+                    0x183425e2c5a968a42e0ee28d56875c14fb082b944e2bb42ada9c6fa52150c2e2
                 )
             ]
         );
         vk.gamma = Pairing.G2Point(
             [
                 uint256(
-                    0x0a7fc737c78d2ed86b0411c14a532d166c4cc3cc35b801ab2c8d55f75658679f
+                    0x0271627e8cd3d1af683e7fa26886e5b868d216b43d3c5bc2b40035ff3ea97e7f
                 ),
                 uint256(
-                    0x1f826f5cfabcf2d128426ebd8a8917d468383517e1a1cc31a28af8df8ffe9121
+                    0x0d98724d7b12deddbee067a253f93af6d14953a62b593ab8b7c124e87d4dca28
                 )
             ],
             [
                 uint256(
-                    0x2baca5488667561a9bca3c8e3a9c2933b584f56efbe4995f9fa4bf87d2c9a2bc
+                    0x0a6d514f99847dded88d7c487dec0eb25cedcf6dbfc41894889eae0e8634ce67
                 ),
                 uint256(
-                    0x094da42ff36fdad4d3b198d26414ed6ace5899d01c756f4acea1549135a793f8
+                    0x1d0537f6cfce279fc1560245bf33f95079ffc3f242c5a0b236abfc66c5ea63bb
                 )
             ]
         );
         vk.delta = Pairing.G2Point(
             [
                 uint256(
-                    0x2eecafedb68453502b32f96d87d1bf73e33f968ee759abc6ec93cf479cc01fb0
+                    0x23871d8376e1dba17f0aa73f9a9e0fbc12a6128829d11c4d0a5b9bf5e9974bcd
                 ),
                 uint256(
-                    0x07ed4f7235976fc86b6620777c56a681ddb8c9a9bcb9e1c38365f0bbb5d3fd03
+                    0x1c483d5977d6dd0006f5ad8581d7c88ec7d4032326ee14a7869a26eea4b8608f
                 )
             ],
             [
                 uint256(
-                    0x0590c1315beb0cdbd729b933addd52049f3990987fdf7abfeda30044ba8d8162
+                    0x2bbc6ad6ee21a88072cedc10e929714c3e8a112d69c54008289214434c1d695b
                 ),
                 uint256(
-                    0x09baa8dd928f2e52f8bee6ddab8c638d135fb760714c2c6d685c5c776bf92d09
+                    0x18b85fdfe0bad8ea9f044154e85770cac75d2ca3355c8ee5c9007c7c4286374a
                 )
             ]
         );
         vk.gamma_abc = new Pairing.G1Point[](2);
         vk.gamma_abc[0] = Pairing.G1Point(
             uint256(
-                0x08e4308126acb1fb35e2df433a6c865b64f9ea1de599a452c8b4ddcfb8a8ca98
+                0x0f15bf55ac60f118ef9b2675232f4854cdf738b6457dc1389d3dcca1d220647a
             ),
             uint256(
-                0x176830d0c9b202106973b857b16c8f37c1875a2fb7d1cd49610e38b551ef9ac1
+                0x2a9a242d262ff9f80da242900aa12165fb844c1b8951a3de7988a4fa6358c77c
             )
         );
         vk.gamma_abc[1] = Pairing.G1Point(
             uint256(
-                0x1df02da5bbba265d63d61c055f3a6fac8e1c1ec8e791d2a3050a2ace10ea4104
+                0x2386d03075bdca50fb00053d186a3a9d3d2e4dac371af738a49994483f0a98e5
             ),
             uint256(
-                0x0155dbc8c6eb4b5c22267b5300ec4f0b32a197148ce77be5b3931af6a27328de
+                0x2bce35ac0b086165cc612109b384db2de1bd0093ac947848e95544db4c436370
             )
         );
     }
@@ -324,8 +328,6 @@ contract Verifier {
         return 0;
     }
 
-    // this function has been modified from a generated file
-    // for less complicated input
     function verifyTx(
         uint256[2] memory a,
         uint256[2][2] memory b,
@@ -345,5 +347,16 @@ contract Verifier {
         } else {
             return false;
         }
+    }
+
+    function vote(
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[1] memory input
+    ) public returns (bool) {
+        require(verifyTx(a, b, c, input), "Verified");
+        votes[uint8(input[0])] += 1;
+        return true;
     }
 }

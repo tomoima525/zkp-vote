@@ -3,17 +3,12 @@
     {
       "name": "x",
       "public": false,
-      "type": "field"
-    },
-    {
-      "name": "y",
-      "public": false,
-      "type": "field"
+      "type": "u8"
     }
   ],
   "outputs": [
     {
-      "type": "field"
+      "type": "u8"
     }
   ]
 }
