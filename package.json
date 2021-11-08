@@ -13,7 +13,8 @@
     "ethers": "^5.5.1",
     "next": "12.0.2",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "zokrates-js": "^1.0.36"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
@@ -31,6 +32,7 @@
     "eslint-config-next": "12.0.2",
     "hardhat": "^2.6.7",
     "hardhat-gas-reporter": "^1.0.4",
+    "next-transpile-modules": "^9.0.0",
     "postcss": "^8.3.11",
     "solidity-coverage": "^0.7.17",
     "tailwindcss": "^2.2.19",
