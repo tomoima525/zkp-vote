@@ -1,15 +1,32 @@
 import { ethers } from "ethers";
-import type { NextPage } from "next";
+import type { GetServerSideProps, GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import VoteEvenOrOdd from "../artifacts/contracts/circuits/VoteEvenOrOdd.sol/VoteEvenOrOdd.json";
+import { useZokrates } from "../contexts/ZokratesContext";
+import { arrayBufferToBase64, base64ToArrayBuffer } from "../utils/converter";
 
 const voteAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-const Home: NextPage = () => {
+
+interface HomeProps {
+  proveKeyString: string;
+  programString: string;
+}
+
+function Home({ proveKeyString, programString }: HomeProps) {
+  const [provider, setProvider] =
+    useState<ethers.providers.JsonRpcProvider | null>(null);
   const [voteResult, setVoteResult] = useState<{ even: number; odd: number }>({
     even: 0,
     odd: 0,
   });
+  const [amount, setAmount] = useState<string | null>(null);
+  const zk = useZokrates();
+
+  async function requestAccount() {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+  }
+
   async function fetchVote() {
     if (typeof window.ethereum !== "undefined") {
       // const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -19,10 +36,12 @@ const Home: NextPage = () => {
         VoteEvenOrOdd.abi,
         provider
       );
+      setProvider(provider);
       try {
         const even = await contract.votes(0);
         const odd = await contract.votes(1);
         setVoteResult({ even, odd });
+        console.log("====", window.location);
       } catch (err) {
         console.log("Error: ", err);
       }
@@ -32,6 +51,60 @@ const Home: NextPage = () => {
   useEffect(() => {
     fetchVote();
   }, []);
+
+  const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      setAmount(e.target.value);
+    } else {
+      setAmount(null);
+    }
+  };
+
+  const handleSubmit = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    if (!zk) {
+      console.log("ZK not ready");
+      return;
+    }
+    if (typeof window.ethereum !== "undefined") {
+      await requestAccount();
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(
+        voteAddress,
+        VoteEvenOrOdd.abi,
+        signer
+      );
+      try {
+        console.log("ZK compile");
+        // compilation
+        const artifacts = zk.compile(programString);
+        console.log("ZK artifacts");
+        const { witness, output } = zk.computeWitness(artifacts, [amount]);
+        console.log("ZK witness");
+        // generate proof
+        const proveKey = base64ToArrayBuffer(proveKeyString);
+        console.log("ProveKey", proveKey.byteLength);
+        const { proof, inputs } = zk.generateProof(
+          artifacts.program,
+          witness,
+          proveKey
+        );
+        console.log("ZK proof", { proof });
+        const transaction = await contract.vote(
+          proof.a,
+          proof.b,
+          proof.c,
+          inputs
+        );
+        await transaction.wait();
+        fetchVote();
+      } catch (e) {
+        console.log("Error", e);
+      }
+    }
+  };
 
   return (
     <div className="flex-auto">
@@ -59,6 +132,7 @@ const Home: NextPage = () => {
                     className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 my-2 block sm:text-sm border border-gray-300 rounded-md p-2"
                     placeholder="Input value 0 - 255"
                     inputMode="numeric"
+                    onChange={handleChangeAmount}
                   />
                 </div>
 
@@ -66,7 +140,9 @@ const Home: NextPage = () => {
               </div>
               <button
                 type="submit"
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                onClick={handleSubmit}
+                disabled={amount === null}
               >
                 Vote
               </button>
@@ -93,6 +169,28 @@ const Home: NextPage = () => {
       </main>
     </div>
   );
+}
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const res = await fetch(
+    "https://github.com/tomoima525/zkp-toy/raw/main/public/proving.key"
+  );
+  const arrayBuffer = await res.arrayBuffer();
+
+  const proveKeyString = arrayBufferToBase64(arrayBuffer);
+
+  const res2 = await fetch(
+    "https://github.com/tomoima525/zkp-toy/raw/main/public/voteEvenOrOdd.zok"
+  );
+
+  const programString = await res2.text();
+
+  return {
+    props: {
+      proveKeyString,
+      programString,
+    },
+  };
 };
 
 export default Home;
