@@ -6,6 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "contract:build": "npx hardhat compile",
     "contract:deploy": "npx hardhat run scripts/deploy.ts"
   },
   "dependencies": {
