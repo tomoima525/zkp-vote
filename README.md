@@ -1,46 +1,72 @@
-# Advanced Sample Hardhat Project
+# Zero Knowledge Proof Voting Contract
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+Even or Odd voting smart contract using Zero Knowledge Proof(zkSNARKs) on Ethereum. Zero Knowledge Proof allows you to vote with privacy.
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+The number you used for voting is hidden; Only the result is verified by zkSNARKs and stored on the blockchain.
 
-Try running some of the following tasks:
+Transaction result: https://ropsten.etherscan.io/tx/0x9447fd2e774b7a9bc465806d69539b53b8bc0d388edaa1eea2a76590f608fa29
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.ts
-TS_NODE_FILES=true npx ts-node scripts/deploy.ts
-npx eslint '**/*.{js,ts}'
-npx eslint '**/*.{js,ts}' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
+## Try it out
+
+## How does this work?
+
+[Zokrates](https://github.com/Zokrates/ZoKrates) is used for Zero Knowledge Proof. Here's the steps:
+
+1. Compute `witness` by [calculating Even or Odd](https://github.com/tomoima525/zkp-toy/blob/main/src/pages/index.tsx#L84) using a program compiled with zokrates-js.
+2. Using `witness` and the `proving.key` provided by the verifier(in this project, proving.key is in https://github.com/tomoima525/zkp-toy/blob/main/public/proving.key), we generate `proof` and `inputs`
+3. Submit tranactions to the blockchain. After the zkSNARKs-powered smart contract [verifies your `proof` and `inputs`](https://github.com/tomoima525/zkp-toy/blob/main/contracts/circuits/VoteEvenOrOdd.sol#L359), it will update the stored result.
+
+## Run locally
+
+We use hardhat for deployment and testing
+
+- Run `yarn install`
+- Start the local node
+  ```
+  $ npx hardhat node
+  ```
+- Deploy the smart contract to your local network
+  ```
+  $ npx hardhat run --network localhost scripts/deploy.ts
+  ...
+  VoteEvenOrOdd deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+  ```
+- Create `.env` file under the root of the project and copy the deployed address
+  ```
+  VOTE_ADDRESS_LOCAL=0x5FbDB2315678afecb367f032d93F642f64180aa3
+  ```
+- Start the frontend
+  ```
+  $ yarn run dev
+  ```
+
+## Running test
+
+```
+$ npx hardhat test
 ```
 
-# Etherscan verification
+## Setup your own proving.key
 
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+You can provide your own proving.key by running Zokrates locally. **You also need to generate one when you change your program code**
 
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
-
-```shell
-hardhat run --network ropsten scripts/sample-script.ts
-```
-
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
-
-```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
-```
-
-# Performance optimizations
-
-For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
+- You need Docker!! E.g. https://docs.docker.com/desktop/mac/install/
+- After installing Docker, run the command below to start zokrates with the root directory set to the contracts repository
+  ```
+  $ docker run -v <path for circuits locally>:/home/zokrates/code -ti zokrates/zokrates /bin/bash
+  ```
+  e.g.
+  ```
+  $ docker run -v ~/workspace/solidity/zkp-toy/contracts/:/home/zokrates/code -ti zokrates/zokrates /bin/bash
+  ```
+- Run the command below to generate the proving.key and the verification.key
+  ```
+  $ zokrates setup
+  ```
+- Upload proving.key somewhere accessible
+- Update the download link at https://github.com/tomoima525/zkp-toy/blob/main/src/pages/index.tsx#L175
+  ```
+    const res = await fetch(
+    "https://your-public.site/proving.key"
+    );
+  ```

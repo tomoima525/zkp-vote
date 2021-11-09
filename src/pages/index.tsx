@@ -1,12 +1,11 @@
 import { ethers } from "ethers";
-import type { GetServerSideProps, GetStaticProps, NextPage } from "next";
+import type { GetStaticProps } from "next";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import VoteEvenOrOdd from "../artifacts/contracts/circuits/VoteEvenOrOdd.sol/VoteEvenOrOdd.json";
 import { useZokrates } from "../contexts/ZokratesContext";
 import { arrayBufferToBase64, base64ToArrayBuffer } from "../utils/converter";
-
-const voteAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+import { getProvider, getVoteAddress } from "../utils/web3";
 
 interface HomeProps {
   proveKeyString: string;
@@ -30,9 +29,9 @@ function Home({ proveKeyString, programString }: HomeProps) {
   async function fetchVote() {
     if (typeof window.ethereum !== "undefined") {
       // const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const provider = new ethers.providers.JsonRpcProvider();
+      const provider = getProvider();
       const contract = new ethers.Contract(
-        voteAddress,
+        getVoteAddress(),
         VoteEvenOrOdd.abi,
         provider
       );
@@ -41,7 +40,6 @@ function Home({ proveKeyString, programString }: HomeProps) {
         const even = await contract.votes(0);
         const odd = await contract.votes(1);
         setVoteResult({ even, odd });
-        console.log("====", window.location);
       } catch (err) {
         console.log("Error: ", err);
       }
@@ -72,7 +70,7 @@ function Home({ proveKeyString, programString }: HomeProps) {
       await requestAccount();
       const signer = provider.getSigner();
       const contract = new ethers.Contract(
-        voteAddress,
+        getVoteAddress(),
         VoteEvenOrOdd.abi,
         signer
       );
