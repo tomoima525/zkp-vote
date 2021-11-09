@@ -154,9 +154,12 @@ function Home({ proveKeyString, programString }: HomeProps) {
 
                 {txUrl && <TxMessage url={txUrl} />}
                 {loading && (
-                  <p className="mt-2 text-sm text-gray-700">
-                    Submitting your transaction. It may take 10 - 20 sec...
-                  </p>
+                  <div className="flex flex-row">
+                    <p className="mt-2 text-sm text-gray-700">
+                      Submitting your transaction. It may take 10 - 20 sec...
+                    </p>
+                    <img src="./spinner.svg" />
+                  </div>
                 )}
               </div>
               <button
