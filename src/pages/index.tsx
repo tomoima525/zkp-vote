@@ -7,6 +7,17 @@ import { useZokrates } from "../contexts/ZokratesContext";
 import { arrayBufferToBase64, base64ToArrayBuffer } from "../utils/converter";
 import { getProvider, getVoteAddress } from "../utils/web3";
 
+const TxMessage = ({ url }: { url: string }) => {
+  const shortUrl = (u: string) => u.slice(0, 40) + ".." + u.slice(-4);
+  return (
+    <div className="mt-2">
+      <p className="text-sm text-gray-600">Submitted. Checkout tx at</p>
+      <a className="mt-2 text-sm text-blue-500" href={url} target="_blank">
+        {shortUrl(url)}
+      </a>
+    </div>
+  );
+};
 interface HomeProps {
   proveKeyString: string;
   programString: string;
@@ -20,6 +31,8 @@ function Home({ proveKeyString, programString }: HomeProps) {
     odd: 0,
   });
   const [amount, setAmount] = useState<string | null>(null);
+  const [txUrl, setTxUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const zk = useZokrates();
 
   async function requestAccount() {
@@ -67,6 +80,7 @@ function Home({ proveKeyString, programString }: HomeProps) {
       return;
     }
     if (typeof window.ethereum !== "undefined") {
+      setLoading(true);
       await requestAccount();
       const signer = provider.getSigner();
       const contract = new ethers.Contract(
@@ -96,10 +110,14 @@ function Home({ proveKeyString, programString }: HomeProps) {
           proof.c,
           inputs
         );
-        await transaction.wait();
+        const receipt = await transaction.wait();
+        setTxUrl(`https://ropsten.etherscan.io/tx/${receipt.transactionHash}`);
         fetchVote();
       } catch (e) {
         console.log("Error", e);
+        setTxUrl(null);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -134,7 +152,12 @@ function Home({ proveKeyString, programString }: HomeProps) {
                   />
                 </div>
 
-                <p className="mt-2 text-sm text-gray-500">TODO: warning</p>
+                {txUrl && <TxMessage url={txUrl} />}
+                {loading && (
+                  <p className="mt-2 text-sm text-gray-700">
+                    Submitting your transaction. It may take 10 - 20 sec...
+                  </p>
+                )}
               </div>
               <button
                 type="submit"
