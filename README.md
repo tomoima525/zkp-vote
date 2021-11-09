@@ -31,7 +31,7 @@ We use hardhat for deployment and testing
   ...
   VoteEvenOrOdd deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
   ```
-- Create `.env` file under the root of the project and copy the deployed address
+- Create `.env.local` file under the root of the project and copy the deployed address
   ```
   VOTE_ADDRESS_LOCAL=0x5FbDB2315678afecb367f032d93F642f64180aa3
   ```
@@ -66,7 +66,5 @@ You can provide your own proving.key by running Zokrates locally. **You also nee
 - Upload proving.key somewhere accessible
 - Update the download link at https://github.com/tomoima525/zkp-toy/blob/main/src/pages/index.tsx#L175
   ```
-    const res = await fetch(
-    "https://your-public.site/proving.key"
-    );
+  const res = await fetch("https://your-public.site/proving.key");
   ```
