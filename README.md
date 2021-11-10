@@ -6,7 +6,10 @@ The number you used for voting is hidden; Only the result is verified by zkSNARK
 
 
 
-https://user-images.githubusercontent.com/6277118/140975106-735b1803-627e-464c-9d5f-3475f64a9d49.mov
+
+
+https://user-images.githubusercontent.com/6277118/141032413-f739b59a-ab15-4d2e-9582-7dc39faa6fcb.mp4
+
 
 
 
